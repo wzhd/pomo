@@ -9,7 +9,7 @@ import argparse, time, os, warnings, itertools, collections, \
 
 TASK_DURATION = 25
 SOUND_DONE = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), './sounds/pop.ogg')
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sounds', 'pop.ogg')
     )
 
 parser = argparse.ArgumentParser(description='Pomodoro timer')

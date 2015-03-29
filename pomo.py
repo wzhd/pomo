@@ -3,9 +3,9 @@
 # Author: Stefan van der Walt <stefan@sun.ac.za>
 # License: BSD
 
-from __future__ import division
+
 import argparse, time, os, warnings, itertools, collections, \
-       datetime, sys, threading, multiprocessing, Queue, copy
+       datetime, sys, threading, multiprocessing, queue, copy
 
 TASK_DURATION = 25
 SOUND_DONE = os.path.abspath(
@@ -21,60 +21,60 @@ args = parser.parse_args()
 
 if args.task is None and args.analyse is None:
     parser.print_help()
-    print "\nEither specify a task, or analyse a log file."
+    print("\nEither specify a task, or analyse a log file.")
     sys.exit(-1)
 
 
 try:
-    print 'Checking for pynotify...',
+    print('Checking for pynotify...', end=' ')
     import pynotify
     has_pynotify = True
-    print 'found.'
+    print('found.')
 except ImportError:
     has_pynotify = False
-    print 'not found.'
+    print('not found.')
 
 try:
-    print 'Checking for appindicator...',
+    print('Checking for appindicator...', end=' ')
     import appindicator
     has_appindicator = True
-    print 'found.'
+    print('found.')
 
     app_type = appindicator.CATEGORY_APPLICATION_STATUS
     app_status_active = appindicator.STATUS_ACTIVE
     app_status_attention = appindicator.STATUS_ATTENTION
 except ImportError:
-    print 'not found.'
+    print('not found.')
     has_appindicator = False
     app_type = None
     app_status_active = 1
     app_status_attention = 2
 
 try:
-    print 'Checking for gtk...',
+    print('Checking for gtk...', end=' ')
     import gtk
     import gobject
     has_gtk = True
 
-    print 'found.'
+    print('found.')
 except ImportError:
     has_gtk = False
-    print 'not found.'
+    print('not found.')
 
 has_gst = False
 if has_gtk:
-    print 'Checking for gstreamer...',
+    print('Checking for gstreamer...', end=' ')
     try:
         import pygst
         pygst.require('0.10')
         import gst
         has_gst = True
-        print 'found.'
+        print('found.')
     except:
         pass
-        print 'not found.'
+        print('not found.')
 
-print
+print()
 
 if has_gtk:
     class GTKIndicator(object):
@@ -153,7 +153,7 @@ if has_gst:
                 self.done()
             elif message.type == gst.MESSAGE_ERROR:
                 (err, debug) = message.parse_error()
-                print "Error while playing audio: %s" % err
+                print("Error while playing audio: %s" % err)
 
         def done(self):
             self.playing = False
@@ -179,10 +179,10 @@ def notify(title, message, sound=False):
             has_pynotify = False
 
     if not has_pynotify:
-        print "\n\n" + "*" * 50
-        print title
-        print message
-        print "*" * 50 + "\n\n"
+        print("\n\n" + "*" * 50)
+        print(title)
+        print(message)
+        print("*" * 50 + "\n\n")
 
     if sound:
         player(SOUND_DONE)
@@ -206,7 +206,7 @@ def group(lst, n):
     303060-group-a-list-into-sequential-n-tuples/
 
     """
-    return itertools.izip(
+    return zip(
         *[itertools.islice(lst, i, None, n) for i in range(n)])
 
 def report(data):
@@ -215,8 +215,8 @@ def report(data):
 
     L = len(data)
     if (L / 3) != (L // 3):
-        print 'Log file contains invalid number of lines. '
-        print 'Trying to proceed anyway.'
+        print('Log file contains invalid number of lines. ')
+        print('Trying to proceed anyway.')
         data = data[:L - (L % 3)]
 
     today = datetime.datetime.today().date()
@@ -258,11 +258,11 @@ def report(data):
         total = sum(nr for (task, nr) in tasks)
         header = "%s [%d pomos]" % (header, total)
 
-        print header
-        print "-" * len(header)
+        print(header)
+        print("-" * len(header))
         for task in tasks:
-            print '%s [%d]' % task
-        print
+            print('%s [%d]' % task)
+        print()
 
     print_tasks(all_tasks, "Summary: all tasks")
     print_tasks(today_tasks, "Summary: today's tasks")
@@ -270,7 +270,7 @@ def report(data):
     total = datetime.timedelta()
     longest_time = datetime.timedelta()
     longest_name = 'No task longer than 0 minutes'
-    for (name, task) in join_tasks.items():
+    for (name, task) in list(join_tasks.items()):
         duration = task['time']
         total += task['time']
 
@@ -278,24 +278,24 @@ def report(data):
             longest_time = duration
             longest_name = name
 
-    print "Last 5 days"
-    print "-----------"
+    print("Last 5 days")
+    print("-----------")
     day_work = {}
-    for (name, enddate), task in pomos.items():
+    for (name, enddate), task in list(pomos.items()):
         days_ago = (today - enddate).days
         if days_ago <= 5:
             day_work[days_ago] = day_work.get(days_ago, 0) + task['nr']
 
     for i in range(5, -1, -1):
         if i in day_work:
-            print today - datetime.timedelta(days=i), "[%s]" % day_work[i]
+            print(today - datetime.timedelta(days=i), "[%s]" % day_work[i])
 
 
-    print "\nTime summary"
-    print "------------"
-    print "Total time for today:", total_today
-    print "Total time:", total
-    print "Longest task: %s at %s" % (longest_name, longest_time)
+    print("\nTime summary")
+    print("------------")
+    print("Total time for today:", total_today)
+    print("Total time:", total)
+    print("Longest task: %s at %s" % (longest_name, longest_time))
 
 
 if args.analyse is not None:
@@ -304,7 +304,7 @@ if args.analyse is not None:
             report(f.readlines())
 
     except IOError:
-        print 'Cannot load "%s" for analysis.' % args.analyse
+        print('Cannot load "%s" for analysis.' % args.analyse)
         sys.exit(-1)
 
     sys.exit(0)
@@ -325,7 +325,7 @@ class TimeConsumer(multiprocessing.Process):
             sys.stdout.flush()
             time.sleep(1)
 
-        print
+        print()
 
 
 class PomoApplet(TimeConsumer):
@@ -443,7 +443,7 @@ def launch_and_monitor(time_queue, msg_queue, task_name='', start_msg=None):
     while applet_process.is_alive() or not msg_queue.empty():
         try:
             msg = msg_queue.get_nowait()
-        except Queue.Empty:
+        except queue.Empty:
             time.sleep(0.1)
             msg = None
 
@@ -488,7 +488,7 @@ if __name__ == "__main__":
                               time1,
                               ""))
         except IOError:
-            print 'Could not write to log file %s.' % log_file
+            print('Could not write to log file %s.' % log_file)
 
     else:
-        print "Pomodoro incomplete... not writing to log."
+        print("Pomodoro incomplete... not writing to log.")

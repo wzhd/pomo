@@ -478,7 +478,7 @@ if __name__ == "__main__":
     if time_queue.empty():
         notify("Time's up!", 'Take a 5 minute break...', sound=True)
 
-        log_file = os.path.join(os.path.dirname(__file__), './pomo.log')
+        log_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pomo.log')
 
         try:
             with open(log_file, 'a') as f:

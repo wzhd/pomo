@@ -61,20 +61,7 @@ except ImportError:
     has_gtk = False
     print('not found.')
 
-has_gst = False
-if has_gtk:
-    print('Checking for gstreamer...', end=' ')
-    try:
-        import pygst
-        pygst.require('0.10')
-        import gst
-        has_gst = True
-        print('found.')
-    except:
-        pass
-        print('not found.')
-
-print()
+from os import system as run_program
 
 if has_gtk:
     class GTKIndicator(object):
@@ -110,58 +97,8 @@ elif has_gtk:
     Indicator = GTKIndicator
 
 
-class AudioPlayer(object):
-    def __call__(self, filename):
-        pass
-
-if has_gst:
-    class GSTPlayer(AudioPlayer):
-        """Play audio using gstreamer.
-
-        Handy references:
-
-        http://www.jejik.com/articles/2007/01/python-gstreamer_threading_and_the_main_loop/
-        http://www.majorsilence.com/pygtk_audio_and_video_playback_gstreamer
-
-        """
-        playing = True
-        pipeline = None
-
-        def __init__(self):
-            AudioPlayer.__init__(self)
-            loop = GObject.MainLoop()
-            GObject.threads_init()
-            self.context = loop.get_context()
-
-        def __call__(self, filename):
-            self.playing = True
-            gst_command = ('filesrc location=%s ! decodebin !'
-                           'audioconvert ! autoaudiosink') % filename
-            pipeline = gst.parse_launch(gst_command)
-            bus = pipeline.get_bus()
-            bus.add_signal_watch()
-            bus.connect("message", self.message)
-            pipeline.set_state(gst.STATE_PLAYING)
-            self.pipeline = pipeline
-
-            while self.playing:
-                self.context.iteration(True)
-                time.sleep(1e-3)
-
-        def message(self, bus, message):
-            if message.type == gst.MESSAGE_EOS:
-                self.done()
-            elif message.type == gst.MESSAGE_ERROR:
-                (err, debug) = message.parse_error()
-                print("Error while playing audio: %s" % err)
-
-        def done(self):
-            self.playing = False
-            self.pipeline.set_state(gst.STATE_NULL)
-
-    player = GSTPlayer()
-else:
-    player = AudioPlayer()
+def player(filename):
+    run_program('mpv ' + filename)
 
 def notify(title, message, sound=False):
     global has_pynotify

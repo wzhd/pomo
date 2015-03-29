@@ -26,8 +26,8 @@ if args.task is None and args.analyse is None:
 
 
 try:
-    print('Checking for pynotify...', end=' ')
-    import pynotify
+    print('Checking for Notify...', end=' ')
+    from gi.repository import Notify
     has_pynotify = True
     print('found.')
 except ImportError:
@@ -52,8 +52,8 @@ except ImportError:
 
 try:
     print('Checking for gtk...', end=' ')
-    import gtk
-    import gobject
+    from gi.repository import Gtk
+    from gi.repository import GObject
     has_gtk = True
 
     print('found.')
@@ -84,7 +84,7 @@ if has_gtk:
         and code released by George Edison under an MIT License.
         """
         def __init__(self, name, icon, status):
-            self.icon = gtk.StatusIcon()
+            self.icon = Gtk.StatusIcon()
             self.icon.set_from_file(
                 os.path.join(os.path.dirname(__file__), './icons',
                              icon + '.png')
@@ -129,8 +129,8 @@ if has_gst:
 
         def __init__(self):
             AudioPlayer.__init__(self)
-            loop = gobject.MainLoop()
-            gobject.threads_init()
+            loop = GObject.MainLoop()
+            GObject.threads_init()
             self.context = loop.get_context()
 
         def __call__(self, filename):
@@ -167,11 +167,10 @@ def notify(title, message, sound=False):
     global has_pynotify
 
     if has_pynotify:
-        if not pynotify.init("icon-summary-body"):
+        if not Notify.init('pomo app'):
             has_pynotify = False
 
-        n = pynotify.Notification(title, message)
-        n.set_urgency(pynotify.URGENCY_CRITICAL)
+        n = Notify.Notification.new(title, message, 'pomo-applet-active')
 
         try:
             n.show()
@@ -336,8 +335,8 @@ class PomoApplet(TimeConsumer):
         self._pause = False
         self._running = True
 
-        loop = gobject.MainLoop()
-        gobject.threads_init()
+        loop = GObject.MainLoop()
+        GObject.threads_init()
         self.context = loop.get_context()
 
     def run(self):
@@ -345,20 +344,20 @@ class PomoApplet(TimeConsumer):
         ind.set_status(app_status_active)
         ind.set_attention_icon("pomo-applet-active")
 
-        time_menu = gtk.MenuItem("test")
-        task_menu = gtk.MenuItem('Task: ' + self.task)
-        quit_menu = gtk.MenuItem('Squish')
-        pause_menu = gtk.MenuItem('Pause/Unpause')
+        time_menu = Gtk.MenuItem("test")
+        task_menu = Gtk.MenuItem('Task: ' + self.task)
+        quit_menu = Gtk.MenuItem('Squish')
+        pause_menu = Gtk.MenuItem('Pause/Unpause')
 
         quit_menu.connect("activate", self.squish)
         pause_menu.connect("activate", self.pause)
 
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
         for m in (time_menu,
                   task_menu,
-                  gtk.SeparatorMenuItem(),
+                  Gtk.SeparatorMenuItem(),
                   quit_menu,
-                  gtk.SeparatorMenuItem(),
+                  Gtk.SeparatorMenuItem(),
                   pause_menu):
             menu.append(m)
             m.show()

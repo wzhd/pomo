@@ -8,9 +8,8 @@ import argparse, time, os, warnings, itertools, collections, \
        datetime, sys, threading, multiprocessing, queue, copy
 
 TASK_DURATION = 25
-SOUND_DONE = os.path.abspath(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), 'sounds', 'pop.ogg')
-    )
+APP_PATH = os.path.dirname(os.path.realpath(__file__))
+SOUND_DONE = os.path.abspath(os.path.join(APP_PATH, 'sounds', 'pop.ogg'))
 
 parser = argparse.ArgumentParser(description='Pomodoro timer')
 parser.add_argument('-t', '--task', type=str,
@@ -414,7 +413,7 @@ if __name__ == "__main__":
     if time_queue.empty():
         notify("Time's up!", 'Take a 5 minute break...', sound=True)
 
-        log_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pomo.log')
+        log_file = os.path.join(APP_PATH, 'pomo.log')
 
         try:
             with open(log_file, 'a') as f:

@@ -12,13 +12,13 @@ APP_PATH = os.path.dirname(os.path.realpath(__file__))
 SOUND_DONE = os.path.abspath(os.path.join(APP_PATH, 'sounds', 'pop.ogg'))
 
 parser = argparse.ArgumentParser(description='Pomodoro timer')
-parser.add_argument('-t', '--task', type=str,
+parser.add_argument('-m', '--message', type=str,
                     help='description of task to work on')
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
 
-if args.task is None and args.analyse is None:
+if args.message is None and args.analyse is None:
     parser.print_help()
     print("\nEither specify a task, or analyse a log file.")
     sys.exit(-1)
@@ -404,10 +404,10 @@ if __name__ == "__main__":
     time_queue.put(None)
 
     start_msg = ('Your 25 minutes starts now',
-                 'Working on: %s' % args.task)
+                 'Working on: %s' % args.message)
 
     applet_process, time0, time1 = launch_and_monitor(time_queue, msg_queue,
-                                                      task_name=args.task,
+                                                      task_name=args.message,
                                                       start_msg=start_msg)
 
     if time_queue.empty():
@@ -418,7 +418,7 @@ if __name__ == "__main__":
         try:
             with open(log_file, 'a') as f:
                 f.writelines(l + "\n" for l in
-                             (args.task or "Pomodoro",
+                             (args.message or "Pomodoro",
                               time0,
                               time1,
                               ""))

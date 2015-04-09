@@ -7,7 +7,7 @@
 import argparse, time, os, warnings, itertools, collections, \
        datetime, sys, threading, multiprocessing, queue, copy
 
-TASK_DURATION = 25
+TASK_DURATION = 1500
 APP_PATH = os.path.dirname(os.path.realpath(__file__))
 SOUND_DONE = os.path.abspath(os.path.join(APP_PATH, 'sounds', 'pop.ogg'))
 
@@ -159,7 +159,7 @@ def report(data):
         data = data[:L - (L % 3)]
 
     today = datetime.datetime.today().date()
-    delta = datetime.timedelta(minutes=TASK_DURATION)
+    delta = datetime.timedelta(seconds=TASK_DURATION)
 
     pomos = collections.OrderedDict()
     total_today = datetime.timedelta()
@@ -401,7 +401,7 @@ if __name__ == "__main__":
     time_queue = multiprocessing.Queue()
     msg_queue = multiprocessing.Queue()
 
-    for i in range(int(TASK_DURATION * 60) - 1, -1, -1):
+    for i in range(TASK_DURATION - 1, -1, -1):
          time_queue.put(str(datetime.timedelta(seconds=i)))
 
     # Add end-of-queue sentinel

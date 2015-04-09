@@ -14,6 +14,8 @@ SOUND_DONE = os.path.abspath(os.path.join(APP_PATH, 'sounds', 'pop.ogg'))
 parser = argparse.ArgumentParser(description='Pomodoro timer')
 parser.add_argument('-m', '--message', type=str,
                     help='description of task to work on')
+parser.add_argument('-t', '--time', type=int,
+                    help='intended duration of task')
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -23,6 +25,8 @@ if args.message is None and args.analyse is None:
     print("\nEither specify a task, or analyse a log file.")
     sys.exit(-1)
 
+if args.time is not None:
+    TASK_DURATION = args.time
 
 try:
     print('Checking for Notify...', end=' ')

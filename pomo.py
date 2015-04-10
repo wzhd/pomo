@@ -122,9 +122,6 @@ def notify(title, message, sound=False):
     if sound:
         os.system('gst-play-1.0 ' + SOUND_DONE + ' > /dev/null &')
 
-def get_time():
-    return time.strftime('%Y/%m/%d %H:%M:%S')
-
 def load_time(s):
     return datetime.datetime.strptime(s, '%Y/%m/%d %H:%M:%S')
 
@@ -373,8 +370,6 @@ def launch_and_monitor(time_queue, msg_queue, task_name='', start_msg=None):
     if start_msg is not None:
         notify(*start_msg)
 
-    time0 = get_time()
-
     while applet_process.is_alive() or not msg_queue.empty():
         try:
             msg = msg_queue.get_nowait()
@@ -387,9 +382,7 @@ def launch_and_monitor(time_queue, msg_queue, task_name='', start_msg=None):
                    'Tomato recycled...')
             applet_process.terminate()
 
-    time1 = get_time()
-
-    return applet_process, time0, time1
+    return applet_process
 
 
 if __name__ == "__main__":
@@ -405,8 +398,8 @@ if __name__ == "__main__":
 
     start_msg = ('Your 25 minutes starts now',
                  'Working on: %s' % args.message)
-
-    applet_process, time0, time1 = launch_and_monitor(time_queue, msg_queue,
+    time_start = time.time()
+    applet_process = launch_and_monitor(time_queue, msg_queue,
                                                       task_name=args.message,
                                                       start_msg=start_msg)
 
@@ -417,13 +410,15 @@ if __name__ == "__main__":
 
         log_file = os.path.join(APP_PATH, 'pomo.log')
 
+        time_finish = time.time()
+
         try:
             with open(log_file, 'a') as f:
-                f.writelines(l + "\n" for l in
-                             (args.message or "Pomodoro",
-                              time0,
-                              time1,
-                              ""))
+                f.writelines((str(int(time_finish - time_start)), ',',
+                              args.message or '', ',',
+                              str(int(time_start)), ',',
+                              str(int(time_finish)), '\n'))
+
         except IOError:
             print('Could not write to log file %s.' % log_file)
 

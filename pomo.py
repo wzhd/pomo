@@ -64,8 +64,6 @@ except ImportError:
     has_gtk = False
     print('not found.')
 
-from os import system as run_program
-
 if has_gtk:
     class GTKIndicator(object):
         """Inspired by
@@ -99,10 +97,6 @@ if has_appindicator and has_gtk:
 elif has_gtk:
     Indicator = GTKIndicator
 
-
-def player(filename):
-    run_program('mpv ' + filename)
-
 def notify(title, message, sound=False):
     global has_pynotify
 
@@ -124,7 +118,7 @@ def notify(title, message, sound=False):
         print("*" * 50 + "\n\n")
 
     if sound:
-        player(SOUND_DONE)
+        os.system('mpv ' + SOUND_DONE + ' > /dev/null &')
 
 def get_time():
     return time.strftime('%Y/%m/%d %H:%M:%S')

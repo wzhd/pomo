@@ -120,7 +120,7 @@ def notify(title, message, sound=False):
         print("*" * 50 + "\n\n")
 
     if sound:
-        os.system('mpv ' + SOUND_DONE + ' > /dev/null &')
+        os.system('gst-play-1.0 ' + SOUND_DONE + ' > /dev/null &')
 
 def get_time():
     return time.strftime('%Y/%m/%d %H:%M:%S')

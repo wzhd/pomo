@@ -16,6 +16,8 @@ parser.add_argument('-m', '--message', type=str,
                     help='description of task to work on')
 parser.add_argument('-t', '--time', type=int,
                     help='intended duration of task')
+parser.add_argument('-o', '--ondone', type=str,
+                    help='command to execute when the current task is done')
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -410,6 +412,8 @@ if __name__ == "__main__":
 
     if time_queue.empty():
         notify("Time's up!", 'Take a 5 minute break...', sound=True)
+        if args.ondone is not None:
+            os.system(args.ondone)
 
         log_file = os.path.join(APP_PATH, 'pomo.log')
 

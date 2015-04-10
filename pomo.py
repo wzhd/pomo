@@ -18,6 +18,8 @@ parser.add_argument('-t', '--time', type=int,
                     help='intended duration of task')
 parser.add_argument('-o', '--ondone', type=str,
                     help='command to execute when the current task is done')
+parser.add_argument('-d', '--directory', type=str,
+                    help='directory where logs will be written')
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -408,7 +410,10 @@ if __name__ == "__main__":
         if args.ondone is not None:
             os.system(args.ondone)
 
-        log_file = os.path.join(APP_PATH, 'pomo.log')
+        if args.directory is not None:
+            log_file = os.path.join(args.directory, 'pomo.log')
+        else:
+            log_file = os.path.join(APP_PATH, 'pomo.log')
 
         time_finish = time.time()
 

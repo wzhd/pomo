@@ -20,6 +20,9 @@ parser.add_argument('-o', '--ondone', type=str,
                     help='command to execute when the current task is done')
 parser.add_argument('-d', '--directory', type=str,
                     help='directory where logs will be written')
+parser.add_argument('-s', '--split', dest='split', action='store_true',
+                    help='split log files by day')
+parser.set_defaults(split=False)
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -411,9 +414,20 @@ if __name__ == "__main__":
             os.system(args.ondone)
 
         if args.directory is not None:
+            log_dir = args.directory
             log_file = os.path.join(args.directory, 'pomo.log')
         else:
-            log_file = os.path.join(APP_PATH, 'pomo.log')
+            log_dir = APP_PATH
+
+        if args.split:
+            log_dir = os.path.join(log_dir, str(time.localtime().tm_year),
+                                   '{0:02d}'.format(time.localtime().tm_mon),
+                                   '{0:02d}'.format(time.localtime().tm_mday))
+
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        log_file = os.path.join(log_dir, 'pomo.log')
 
         time_finish = time.time()
 

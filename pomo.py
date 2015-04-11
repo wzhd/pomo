@@ -389,9 +389,7 @@ def launch_and_monitor(time_queue, msg_queue, task_name='', start_msg=None):
 
     return applet_process
 
-
-if __name__ == "__main__":
-
+def start_task():
     time_queue = multiprocessing.Queue()
     msg_queue = multiprocessing.Queue()
 
@@ -407,40 +405,45 @@ if __name__ == "__main__":
     applet_process = launch_and_monitor(time_queue, msg_queue,
                                                       task_name=args.message,
                                                       start_msg=start_msg)
+    return time_start
 
-    if time_queue.empty():
-        notify("Time's up!", 'Take a 5 minute break...', sound=True)
-        if args.ondone is not None:
-            os.system(args.ondone)
+def finish_task():
+    notify("Time's up!", 'Take a 5 minute break...', sound=True)
+    if args.ondone is not None:
+        os.system(args.ondone)
 
-        input('Stop working now?')
-        time_finish = time.time()
+    input('Stop working now?')
+    time_finish = time.time()
+    return time_finish
 
-        if args.directory is not None:
-            log_dir = args.directory
-            log_file = os.path.join(args.directory, 'pomo.log')
-        else:
-            log_dir = APP_PATH
-
-        if args.split:
-            log_dir = os.path.join(log_dir, str(time.localtime().tm_year),
-                                   '{0:02d}'.format(time.localtime().tm_mon),
-                                   '{0:02d}'.format(time.localtime().tm_mday))
-
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-
-        log_file = os.path.join(log_dir, 'pomo.log')
-
-        try:
-            with open(log_file, 'a') as f:
-                f.writelines((str(int(time_finish - time_start)), ',',
-                              args.message or '', ',',
-                              str(int(time_start)), ',',
-                              str(int(time_finish)), '\n'))
-
-        except IOError:
-            print('Could not write to log file %s.' % log_file)
-
+def write_log(time_start, time_finish):
+    if args.directory is not None:
+        log_dir = args.directory
+        log_file = os.path.join(args.directory, 'pomo.log')
     else:
-        print("Pomodoro incomplete... not writing to log.")
+        log_dir = APP_PATH
+
+    if args.split:
+        log_dir = os.path.join(log_dir, str(time.localtime().tm_year),
+                               '{0:02d}'.format(time.localtime().tm_mon),
+                               '{0:02d}'.format(time.localtime().tm_mday))
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    log_file = os.path.join(log_dir, 'pomo.log')
+
+    try:
+        with open(log_file, 'a') as f:
+            f.writelines((str(int(time_finish - time_start)), ',',
+                          args.message or '', ',',
+                          str(int(time_start)), ',',
+                          str(int(time_finish)), '\n'))
+
+    except IOError:
+        print('Could not write to log file %s.' % log_file)
+
+if __name__ == "__main__":
+    start = start_task()
+    finish = finish_task()
+    write_log(start, finish)

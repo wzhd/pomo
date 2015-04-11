@@ -26,6 +26,9 @@ parser.set_defaults(split=False)
 parser.add_argument('-c', '--continuous', dest='continuous', action='store_true',
                     help='work on tasks continuously')
 parser.set_defaults(continuous=False)
+parser.add_argument('-b', '--startbreak', dest='startbreak', action='store_true',
+                    help='start a break before starting a task')
+parser.set_defaults(startbreak=False)
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -450,7 +453,12 @@ def write_log(time_start, time_finish):
         print('Could not write to log file %s.' % log_file)
 
 if __name__ == "__main__":
-    start = start_task()
+    if (args.startbreak):
+        print('taking a break...')
+        time.sleep(300)
+        start = start_task(restart=True)
+    else:
+        start = start_task()
     finish = finish_task()
     write_log(start, finish)
     while(args.continuous):

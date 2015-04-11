@@ -413,6 +413,9 @@ if __name__ == "__main__":
         if args.ondone is not None:
             os.system(args.ondone)
 
+        input('Stop working now?')
+        time_finish = time.time()
+
         if args.directory is not None:
             log_dir = args.directory
             log_file = os.path.join(args.directory, 'pomo.log')
@@ -428,8 +431,6 @@ if __name__ == "__main__":
             os.makedirs(log_dir)
 
         log_file = os.path.join(log_dir, 'pomo.log')
-
-        time_finish = time.time()
 
         try:
             with open(log_file, 'a') as f:

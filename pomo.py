@@ -23,6 +23,9 @@ parser.add_argument('-d', '--directory', type=str,
 parser.add_argument('-s', '--split', dest='split', action='store_true',
                     help='split log files by day')
 parser.set_defaults(split=False)
+parser.add_argument('-c', '--continuous', dest='continuous', action='store_true',
+                    help='work on tasks continuously')
+parser.set_defaults(continuous=False)
 parser.add_argument('-a', '--analyse', type=str,
                     help='analyse the given pomo log')
 args = parser.parse_args()
@@ -389,7 +392,7 @@ def launch_and_monitor(time_queue, msg_queue, task_name='', start_msg=None):
 
     return applet_process
 
-def start_task():
+def start_task(restart=False):
     time_queue = multiprocessing.Queue()
     msg_queue = multiprocessing.Queue()
 
@@ -401,6 +404,9 @@ def start_task():
 
     start_msg = ('Your 25 minutes starts now',
                  'Working on: %s' % args.message)
+    if (restart):
+        notify("Time to work!", '5 minutes have passwd', sound=True)
+        input('Start working now?')
     time_start = time.time()
     applet_process = launch_and_monitor(time_queue, msg_queue,
                                                       task_name=args.message,
@@ -447,3 +453,9 @@ if __name__ == "__main__":
     start = start_task()
     finish = finish_task()
     write_log(start, finish)
+    while(args.continuous):
+        print('taking a break...')
+        time.sleep(300)
+        start = start_task(restart=True)
+        finish = finish_task()
+        write_log(start, finish)

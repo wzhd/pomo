@@ -447,7 +447,10 @@ def write_log(time_start, time_finish):
             f.writelines((str(int(time_finish - time_start)), ',',
                           args.message or '', ',',
                           str(int(time_start)), ',',
-                          str(int(time_finish)), '\n'))
+                          str(int(time_finish)), ',',
+                          time.strftime('%H:%M:%S', time.localtime(time_start)), ',',
+                          time.strftime('%H:%M:%S', time.localtime(time_finish)), '\n'
+                      ))
 
     except IOError:
         print('Could not write to log file %s.' % log_file)
